@@ -2,6 +2,7 @@
 /* Copyright Contributors to the ODPi Egeria project. */
 package org.odpi.egeria.connectors.ibm.datastage.dataengineconnector.model;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.odpi.egeria.connectors.ibm.datastage.dataengineconnector.DataStageConstants;
 import org.odpi.egeria.connectors.ibm.igc.clientlibrary.IGCRestClient;
 import org.odpi.egeria.connectors.ibm.igc.clientlibrary.errors.IGCConnectivityException;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * Class for interacting with DataStage Job objects.
@@ -35,6 +37,7 @@ public class DataStageJob {
     private final Map<String, StageColumn> columnMap;
     private final Map<String, StageVariable> varMap;
     private final Map<String, Set<String>> stageToVarsMap;
+    private final Map<String, Set<String>> linkToColumnsMap;
     private final List<String> inputStoreRIDs;
     private final List<String> outputStoreRIDs;
     private final List<String> inputStageRIDs;
@@ -60,6 +63,7 @@ public class DataStageJob {
         this.columnMap = new TreeMap<>();
         this.varMap = new TreeMap<>();
         this.stageToVarsMap = new TreeMap<>();
+        this.linkToColumnsMap = new TreeMap<>();
         this.inputStoreRIDs = new ArrayList<>();
         this.outputStoreRIDs = new ArrayList<>();
         this.inputStageRIDs = new ArrayList<>();
@@ -289,7 +293,11 @@ public class DataStageJob {
         IGCSearchConditionSet conditionSet = new IGCSearchConditionSet(condition);
         igcSearch.addConditions(conditionSet);
         ItemList<Link> links = igcRestClient.search(igcSearch);
-        buildMap(linkMap, igcRestClient.getAllPages(null, links));
+        List<Link> allPages = igcRestClient.getAllPages(null, links);
+        for (Link link : allPages) {
+            linkToColumnsMap.put(link.getId(), new TreeSet<>());
+        }
+        buildMap(linkMap, allPages);
     }
 
     /**
@@ -348,6 +356,7 @@ public class DataStageJob {
         }
         if (stageCols != null) {
             buildMap(columnMap, stageCols);
+            buildLinkStageColumnMap(stageCols);
         } else if (type.equals(JobType.JOB)) {
             // Only warn about finding no columns if this is a Job (Sequences in general will not have stage columns)
             log.warn("Unable to identify any stage columns for job: {}", jobRid);
@@ -445,4 +454,46 @@ public class DataStageJob {
         }
     }
 
+    public List<Link> getInputLinks(Stage stage) {
+        return getAllLinks().stream().filter(link -> link.getInputStages().getId().equalsIgnoreCase(stage.getId())).collect(Collectors.toList());
+    }
+
+    public List<Link> getOutputLinks(Stage stage) {
+        return getAllLinks().stream().filter(link -> link.getOutputStages().getId().equalsIgnoreCase(stage.getId())).collect(Collectors.toList());
+    }
+
+    public Stage getStageByRid(String rid) {
+        return stageMap.getOrDefault(rid, null);
+    }
+
+    /**
+     * Retrieve the complete list of stage variables for the provided stage based on its RID.
+     *
+     * @param rid the RID of the stage for which to retrieve all stage variables
+     *
+     * @return {@code List<StageVariable>}
+     */
+    public List<StageColumn> getStageColumnsForLink(String rid) {
+        log.debug("Looking up cache stage columns for link: {}", rid);
+        Set<String> stageColumnRids = linkToColumnsMap.getOrDefault(rid, null);
+        if (CollectionUtils.isEmpty(stageColumnRids)) {
+            return Collections.emptyList();
+        }
+        return stageColumnRids.stream().map(columnMap::get).collect(Collectors.toList());
+    }
+
+    private void buildLinkStageColumnMap(List<StageColumn> stageCols) {
+        for(StageColumn column : stageCols) {
+            List<Reference> context = column.getContext();
+            Reference link = context.get(context.size() - 1);
+            if (link.getType().equals("link")) {
+                String linkRid = link.getId();
+                Set<String> linkCols = linkToColumnsMap.getOrDefault(linkRid, null);
+                if (linkCols != null) {
+                    linkCols.add(column.getId());
+                    linkToColumnsMap.put(linkRid, linkCols);
+                }
+            }
+        }
+    }
 }

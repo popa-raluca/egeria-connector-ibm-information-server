@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /* Copyright Contributors to the ODPi Egeria project. */
-package org.odpi.egeria.connectors.ibm.datastage.dataengineconnector;
+package org.odpi.egeria.connectors.ibm.datastage.dataengineconnector.reports;
 
+import org.odpi.egeria.connectors.ibm.datastage.dataengineconnector.reports.DataStageReportsConnector;
 import org.odpi.openmetadata.frameworks.connectors.properties.beans.ConnectorType;
 import org.odpi.openmetadata.governanceservers.dataengineproxy.connectors.DataEngineConnectorProviderBase;
 

@@ -131,8 +131,10 @@ public class ProcessMapping extends BaseMapping {
             Set<PortImplementation> portImplementations = new HashSet<>();
             Set<LineageMapping> lineageMappings = new HashSet<>();
 
-            List<Link> allInputLinks = igcRestClient.getAllPages("input_links", stage.getInputLinks());
-            List<Link> allOutputLinks = igcRestClient.getAllPages("output_links", stage.getOutputLinks());
+//            List<Link> allInputLinks = igcRestClient.getAllPages("input_links", stage.getInputLinks());
+//            List<Link> allOutputLinks = igcRestClient.getAllPages("output_links", stage.getOutputLinks());
+            List<Link> allInputLinks = job.getInputLinks(stage);
+            List<Link> allOutputLinks = job.getOutputLinks(stage);
             Set<String> allLinkRids = Stream.concat(allInputLinks.stream(), allOutputLinks.stream()).map(Link::getId).collect(Collectors.toSet());
             log.debug("Adding input links: {}", allInputLinks);
             addImplementationDetails(job, stage, allInputLinks, allLinkRids, PortType.INPUT_PORT, portImplementations, lineageMappings);

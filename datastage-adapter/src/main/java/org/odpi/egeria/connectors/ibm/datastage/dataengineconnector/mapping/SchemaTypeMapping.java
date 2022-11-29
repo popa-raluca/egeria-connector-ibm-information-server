@@ -107,7 +107,7 @@ public class SchemaTypeMapping extends BaseMapping {
                 log.debug("Constructing SchemaType for store & fields, within stage: {}", schemaTypeQN);
                 schemaType.setQualifiedName(schemaTypeQN);
                 schemaType.setDisplayName(storeIdentity.getName());
-                schemaType.setAuthor((String) igcRestClient.getPropertyByName(stage, "modified_by"));
+                schemaType.setAuthor(stage.getModifiedBy());
                 AttributeMapping attributeMapping = new AttributeMapping(cache);
                 schemaType.setAttributeList(attributeMapping.getForDataStoreFields(fields, fullyQualifiedStageName));
             } else {
@@ -135,7 +135,7 @@ public class SchemaTypeMapping extends BaseMapping {
             schemaType.setQualifiedName(fullyQualifiedStageName);
             schemaType.setDisplayName(stage.getName());
 
-            schemaType.setAuthor((String) igcRestClient.getPropertyByName(stage, "modified_by"));
+            schemaType.setAuthor(stage.getModifiedBy());
             AttributeMapping attributeMapping = new AttributeMapping(cache);
             schemaType.setAttributeList(attributeMapping.getForStageVariables(stageVariables, job, fullyQualifiedStageName));
 

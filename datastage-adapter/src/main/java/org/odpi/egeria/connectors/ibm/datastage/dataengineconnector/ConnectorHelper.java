@@ -326,7 +326,7 @@ public class ConnectorHelper {
      * @param exceptionMessageDefinition
      * @throws ConnectorCheckedException always
      */
-    static void raiseConnectorCheckedException(Class clazz, String methodName, Exception cause, ExceptionMessageDefinition exceptionMessageDefinition) throws ConnectorCheckedException {
+    public static void raiseConnectorCheckedException(Class clazz, String methodName, Exception cause, ExceptionMessageDefinition exceptionMessageDefinition) throws ConnectorCheckedException {
         if(cause == null) {
             throw new ConnectorCheckedException(exceptionMessageDefinition,
                     clazz.getName(),
@@ -339,7 +339,7 @@ public class ConnectorHelper {
         }
     }
 
-    static void connectIGC(Class connectorClass, IGCRestClient client, Engine dataEngine, String address, Integer igcPage) throws ConnectorCheckedException {
+    public static void connectIGC(Class connectorClass, IGCRestClient client, Engine dataEngine, String address, Integer igcPage) throws ConnectorCheckedException {
         IGCVersionEnum igcVersion;
         try {
             // Create new REST API client (opens a new session)

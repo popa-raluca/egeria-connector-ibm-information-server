@@ -5,7 +5,7 @@ package org.odpi.egeria.connectors.ibm.datastage.dataengineconnector.model;
 import org.apache.commons.collections4.CollectionUtils;
 import org.odpi.egeria.connectors.ibm.datastage.dataengineconnector.DataStageConstants;
 import org.odpi.egeria.connectors.ibm.datastage.dataengineconnector.mapping.ProcessMapping;
-import org.odpi.egeria.connectors.ibm.datastage.dataengineconnector.services.ReportService;
+import org.odpi.egeria.connectors.ibm.datastage.dataengineconnector.reports.services.ReportService;
 import org.odpi.egeria.connectors.ibm.igc.clientlibrary.IGCRestClient;
 import org.odpi.egeria.connectors.ibm.igc.clientlibrary.cache.ObjectCache;
 import org.odpi.egeria.connectors.ibm.igc.clientlibrary.errors.IGCConnectivityException;
